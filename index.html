@@ -1,0 +1,145 @@
+<!doctype html>
+
+<script>
+var main =(function(){/*
+#define PIXELS 1
+#define PIXEL_PORT  PORTB
+#define PIXEL_DDR   DDRB
+#define PIXEL_BIT   0
+#define T1H  900
+#define T1L  600
+#define T0H  400
+#define T0L  900
+#define RES 6000
+#define NS_PER_SEC (1000000000L)
+#define CYCLES_PER_SEC (F_CPU)
+#define NS_PER_CYCLE ( NS_PER_SEC / CYCLES_PER_SEC )
+#define NS_TO_CYCLES(n) ( (n) / NS_PER_CYCLE )
+
+void sendBit( bool bitVal ) {
+    if (  bitVal ) {
+		asm volatile (
+			"sbi %[port], %[bit] \n\t"
+			".rept %[onCycles] \n\t"
+			"nop \n\t"
+			".endr \n\t"
+			"cbi %[port], %[bit] \n\t"
+			".rept %[offCycles] \n\t"
+			"nop \n\t"
+			".endr \n\t"
+			::
+			[port]		"I" (_SFR_IO_ADDR(PIXEL_PORT)),
+			[bit]		"I" (PIXEL_BIT),
+			[onCycles]	"I" (NS_TO_CYCLES(T1H) - 2),
+			[offCycles] 	"I" (NS_TO_CYCLES(T1L) - 2)
+		);
+    } else {
+		asm volatile (
+			"sbi %[port], %[bit] \n\t"
+			".rept %[onCycles] \n\t"
+			"nop \n\t"
+			".endr \n\t"
+			"cbi %[port], %[bit] \n\t"
+			".rept %[offCycles] \n\t"
+			"nop \n\t"
+			".endr \n\t"
+			::
+			[port]		"I" (_SFR_IO_ADDR(PIXEL_PORT)),
+			[bit]		"I" (PIXEL_BIT),
+			[onCycles]	"I" (NS_TO_CYCLES(T0H) - 2),
+			[offCycles]	"I" (NS_TO_CYCLES(T0L) - 2)
+
+		);
+    }
+}
+
+void sendByte( unsigned char byte ) {
+    for( unsigned char bit = 0 ; bit < 8 ; bit++ ) {
+      sendBit( bitRead( byte , 7 ) );
+      byte <<= 1;
+    }
+}
+
+void ledsetup() {
+  bitSet( PIXEL_DDR , PIXEL_BIT );
+}
+
+void sendPixel( unsigned char r, unsigned char g , unsigned char b )  {
+  sendByte(g);
+  sendByte(r);
+  sendByte(b);
+}
+
+
+void show() {
+	_delay_us( (RES / 1000UL) + 1);
+}
+
+void showColor( unsigned char r , unsigned char g , unsigned char b ) {
+  cli();
+  for( int p=0; p<PIXELS; p++ ) {
+    sendPixel( r , g , b );
+  }
+  sei();
+  show();
+}
+
+#define THEATER_SPACING (PIXELS/20)
+
+void setup() {
+  ledsetup();
+}*/}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+var program = '';
+
+
+function addOnLED()
+{
+	var code = document.getElementById('code');
+	var div = document.createElement('div');
+	var text = document.createTextNode('LEDを光らせる');
+	div.appendChild(text)
+	code.appendChild(div);
+
+	program += 'showColor(255, 255, 255);\n';
+}
+
+function addOffLED()
+{
+	var code = document.getElementById('code');
+	var div = document.createElement('div');
+	var text = document.createTextNode('LEDを消す');
+	div.appendChild(text)
+	code.appendChild(div);
+
+	program += 'showColor(0, 0, 0);\n';
+}
+
+function addDelay()
+{
+	var code = document.getElementById('code');
+	var div = document.createElement('div');
+	var delayTime = document.getElementById('delayTime').value;
+	var text = document.createTextNode(delayTime + '秒待つ');
+	div.appendChild(text)
+	code.appendChild(div);
+
+	program += 'delay(' + delayTime + ');\n'
+}
+
+function showCode()
+{
+	alert(main + '\nvoid loop(){\n' + program + '\n}');
+}
+</script>
+
+<html>
+<body>
+<input type='button' value='LEDを光らせる' onclick='addOnLED()'><br>
+<input type='button' value='LEDを消す' onclick='addOffLED()'><br>
+<input type='text' id='delayTime' value='1'><input type='button' value='秒待つ' onclick='addDelay()'><br>
+<input type='button' value='コードを見る' onclick='showCode()'><br>
+<div id='code'>
+<div>
+</body>
+</html>
