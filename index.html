@@ -92,16 +92,18 @@ void setup() {
 
 var program = '';
 
+window.onload = showCode;
 
 function addOnLED()
 {
 	var code = document.getElementById('code');
 	var div = document.createElement('div');
-	var text = document.createTextNode('LEDを光らせる');
+	var color = document.getElementById('color').selectedOptions[0];
+	var text = document.createTextNode(color.text + '色にLEDを光らせる');
 	div.appendChild(text)
 	code.appendChild(div);
 
-	program += 'showColor(255, 255, 255);\n';
+	program += 'showColor(' + color.value + ');\n';
 }
 
 function addOffLED()
@@ -129,17 +131,23 @@ function addDelay()
 
 function showCode()
 {
-	alert(main + '\nvoid loop(){\n' + program + '\n}');
+	document.getElementById('program').value = (main + '\nvoid loop(){\n' + program + '\n}');
 }
 </script>
 
 <html>
 <body>
-<input type='button' value='LEDを光らせる' onclick='addOnLED()'><br>
-<input type='button' value='LEDを消す' onclick='addOffLED()'><br>
-<input type='text' id='delayTime' value='1'><input type='button' value='秒待つ' onclick='addDelay()'><br>
-<input type='button' value='コードを見る' onclick='showCode()'><br>
+<select id='color'>
+	<option value='255, 0, 0'>赤</option>
+	<option value='0, 255, 0'>緑</option>
+	<option value='0, 0, 255'>青</option>
+</select>
+<input type='button' value='色にLEDを光らせる' onclick='addOnLED();showCode();'><br>
+<input type='button' value='LEDを消す' onclick='addOffLED();showCode();'><br>
+<input type='text' id='delayTime' value='1'><input type='button' value='秒待つ' onclick='addDelay();showCode();'><br>
 <div id='code'>
-<div>
+</div>
+<textarea type='text' id='program'>
+</textarea>
 </body>
 </html>
